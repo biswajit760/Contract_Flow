@@ -2,20 +2,24 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useContract, Blueprint, Contract } from "@/app/context/ContractContext"; // Check your path
-import { Button } from "@/components/Button";
-import { Input } from "@/components/Input";
+// FIX 1: Destructure helper
+import { useContract, Blueprint, Contract } from "@/app/context/ContractContext"; 
+
 import { NavBar } from "@/components/NavBar";
 import { 
   FileText, Plus, PenTool, Calendar, CheckSquare, 
   Search, ArrowRight, LayoutTemplate, X 
 } from "lucide-react";
+import { Button } from "@/components/Button";
+import { Input } from "@/components/Input";
 
 export default function BlueprintsPage() {
   const router = useRouter();
-  const { blueprints, dispatch } = useContract();
+  
+  // FIX 2: Use 'createContract' instead of 'dispatch'
+  const { blueprints, createContract } = useContract();
 
-  // --- MODAL STATE (To create contract directly from here) ---
+  // --- MODAL STATE ---
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedBlueprint, setSelectedBlueprint] = useState<Blueprint | null>(null);
   const [newContractName, setNewContractName] = useState("");
@@ -45,10 +49,14 @@ export default function BlueprintsPage() {
       name: finalName,
       status: "Created",
       formData: {},
+      // FIX 3: Ensure history is initialized
+      history: [{ status: "Created", timestamp: new Date().toISOString() }],
       createdAt: new Date().toISOString(),
     };
 
-    dispatch({ type: "CREATE_CONTRACT", payload: newContract });
+    // FIX 4: Use the helper function
+    createContract(newContract);
+    
     router.push(`/contracts/${newContractId}`);
   };
 
@@ -167,7 +175,7 @@ export default function BlueprintsPage() {
                 label="Contract Name" 
                 placeholder="e.g. Service Agreement - Acme Corp" 
                 value={newContractName}
-                onChange={(e) => setNewContractName(e.target.value)}
+                onChange={(e) => setNewContractName(e.target.value)} 
                 autoFocus
                 className="text-lg py-3"
               />

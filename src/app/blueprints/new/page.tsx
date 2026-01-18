@@ -12,7 +12,9 @@ import {
 
 export default function CreateBlueprintPage() {
   const router = useRouter();
-  const { dispatch } = useContract();
+  
+  // FIX: Destructure 'addBlueprint' instead of 'dispatch'
+  const { addBlueprint } = useContract();
 
   const [name, setName] = useState("");
   const [fields, setFields] = useState<FieldDefinition[]>([]);
@@ -37,7 +39,7 @@ export default function CreateBlueprintPage() {
     setFields(fields.filter(f => f.id !== id));
   };
 
-  // --- NEW: REORDERING LOGIC (Satisfies "Positioning" Requirement) ---
+  // --- REORDERING LOGIC ---
   const moveField = (index: number, direction: 'up' | 'down') => {
     const newFields = [...fields];
     
@@ -64,16 +66,14 @@ export default function CreateBlueprintPage() {
       position: index + 1 // 1-based index (1, 2, 3...)
     }));
 
-    dispatch({
-      type: "ADD_BLUEPRINT",
-      payload: {
-        id: crypto.randomUUID(),
-        name,
-        fields: fieldsWithPosition,
-      },
+    // FIX: Use the helper function directly
+    addBlueprint({
+      id: crypto.randomUUID(),
+      name,
+      fields: fieldsWithPosition,
     });
 
-    router.push("/blueprints"); 
+    router.push("/blueprints"); // Or back to dashboard
   };
 
   return (
@@ -82,7 +82,7 @@ export default function CreateBlueprintPage() {
       {/* 1. Main Navbar */}
       <NavBar />
 
-      {/* 2. Page Header (Static to avoid overlap) */}
+      {/* 2. Page Header */}
       <div className="bg-white border-b border-slate-200 px-6 py-4 shadow-sm">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           
@@ -179,18 +179,18 @@ export default function CreateBlueprintPage() {
                         {/* 2. Main Content */}
                         <div className="flex-1 space-y-2">
                            <div className="flex items-center gap-2">
-                              <TypeIcon type={field.type} />
-                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                                {field.type} Field
-                              </span>
+                             <TypeIcon type={field.type} />
+                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                               {field.type} Field
+                             </span>
                            </div>
                            <input
-                              type="text"
-                              value={field.label}
-                              onChange={(e) => updateFieldLabel(field.id, e.target.value)}
-                              className="w-full bg-transparent text-lg font-medium text-slate-800 placeholder:text-slate-400 border-b border-dashed border-slate-300 focus:border-blue-500 focus:border-solid outline-none py-1 transition-all"
-                              placeholder={`Enter question for this ${field.type}...`}
-                              autoFocus={!field.label} 
+                             type="text"
+                             value={field.label}
+                             onChange={(e) => updateFieldLabel(field.id, e.target.value)}
+                             className="w-full bg-transparent text-lg font-medium text-slate-800 placeholder:text-slate-400 border-b border-dashed border-slate-300 focus:border-blue-500 focus:border-solid outline-none py-1 transition-all"
+                             placeholder={`Enter question for this ${field.type}...`}
+                             autoFocus={!field.label} 
                            />
                         </div>
 
